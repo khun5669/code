@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ห้องฝึกอ่านโค้ด — Trace โค้ดไพทอน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EAE4D6;
+  --paper-2:#DED5C1;
+  --ink:#262320;
+  --ink-soft:#5B564C;
+  --panel:#1C2422;
+  --panel-2:#242E2B;
+  --panel-line:#33413C;
+  --code-text:#DCE8E2;
+  --code-num:#5E756D;
+  --accent:#3E6F63;
+  --accent-2:#2C534A;
+  --warm:#A85A2E;
+  --good:#3D7A4E;
+  --good-bg:#DCEBDD;
+  --bad:#AA4237;
+  --bad-bg:#F1DAD5;
+  --border:#C9BFA9;
+  --radius:14px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#171512;
+    --paper-2:#201D18;
+    --ink:#EDE7DA;
+    --ink-soft:#B4AC9A;
+    --border:#3A362D;
+    --panel:#0F1513;
+    --panel-2:#182120;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#171512;
+  --paper-2:#201D18;
+  --ink:#EDE7DA;
+  --ink-soft:#B4AC9A;
+  --border:#3A362D;
+  --panel:#0F1513;
+  --panel-2:#182120;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Sarabun',sans-serif;
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+#app{
+  max-width:760px;
+  margin:0 auto;
+  padding:28px 18px 60px;
+}
+.top-row{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:22px;
+}
+.brand{
+  font-weight:700;
+  font-size:20px;
+  letter-spacing:.2px;
+}
+.brand small{
+  display:block;
+  font-weight:400;
+  font-size:13px;
+  color:var(--ink-soft);
+  margin-top:2px;
+}
+.theme-toggle{
+  background:none;
+  border:1px solid var(--border);
+  color:var(--ink-soft);
+  border-radius:20px;
+  padding:6px 12px;
+  font-family:'Sarabun',sans-serif;
+  font-size:13px;
+  cursor:pointer;
+}
+h1{
+  font-size:30px;
+  line-height:1.25;
+  margin:0 0 10px;
+  font-weight:700;
+}
+.lede{
+  color:var(--ink-soft);
+  font-size:15.5px;
+  line-height:1.6;
+  margin:0 0 26px;
+  max-width:60ch;
+}
+.card{
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  margin-bottom:18px;
+}
+.section-title{
+  font-weight:600;
+  font-size:15px;
+  margin:0 0 12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.section-title .count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--ink-soft);
+  font-weight:400;
+}
+.cat-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+@media (max-width:520px){ .cat-grid{grid-template-columns:1fr;} }
+.cat-item{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  padding:10px 11px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13.5px;
+  line-height:1.4;
+  user-select:none;
+  background:var(--paper);
+  transition:border-color .15s;
+}
+.cat-item.on{
+  border-color:var(--accent);
+  box-shadow:inset 0 0 0 1px var(--accent);
+}
+.cat-item input{margin-top:2px; accent-color:var(--accent);}
+.cat-item .tag{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;
+  color:var(--ink-soft);
+  margin-top:3px;
+}
+.cat-all-btn{
+  background:none;
+  border:none;
+  color:var(--accent-2);
+  font-size:12.5px;
+  cursor:pointer;
+  padding:0;
+  text-decoration:underline;
+  font-weight:600;
+}
+.seg{
+  display:flex;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+}
+.seg button{
+  flex:1;
+  padding:11px 8px;
+  border:none;
+  background:var(--paper);
+  color:var(--ink-soft);
+  font-family:'Sarabun',sans-serif;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  border-right:1px solid var(--border);
+}
+.seg button:last-child{border-right:none;}
+.seg button.active{
+  background:var(--accent);
+  color:#fff;
+}
+.mode-buttons{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:6px;
+}
+.btn{
+  font-family:'Sarabun',sans-serif;
+  font-weight:600;
+  font-size:15px;
+  padding:14px 18px;
+  border-radius:11px;
+  border:1px solid transparent;
+  cursor:pointer;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.btn-primary{
+  background:var(--accent);
+  color:#fff;
+}
+.btn-primary:hover{background:var(--accent-2);}
+.btn-primary .sub{font-weight:400; font-size:12.5px; opacity:.85;}
+.btn-outline{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--ink);
+}
+.btn-outline .sub{font-weight:400; font-size:12.5px; color:var(--ink-soft);}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+.stat-row{
+  display:flex;
+  gap:16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+.stat-row b{color:var(--ink); font-weight:600;}
+
+/* ---- question screen ---- */
+.q-status{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+}
+.pill{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px;
+  padding:5px 10px;
+  border-radius:20px;
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  color:var(--ink-soft);
+}
+.timer{
+  font-family:'JetBrains Mono',monospace;
+  font-size:15px;
+  font-weight:600;
+  padding:6px 12px;
+  border-radius:20px;
+  background:var(--panel);
+  color:var(--code-text);
+}
+.timer.low{background:var(--bad); color:#fff;}
+.progress-track{
+  height:5px;
+  border-radius:4px;
+  background:var(--paper-2);
+  border:1px solid var(--border);
+  overflow:hidden;
+  margin-bottom:18px;
+}
+.progress-fill{
+  height:100%;
+  background:var(--accent);
+  transition:width .25s;
+}
+.cat-badge{
+  font-size:11.5px;
+  font-weight:600;
+  color:var(--accent-2);
+  text-transform:none;
+  margin-bottom:8px;
+  display:inline-block;
+}
+.term{
+  background:var(--panel);
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:14px;
+  border:1px solid var(--panel-line);
+}
+.term-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:9px 14px;
+  background:var(--panel-2);
+  border-bottom:1px solid var(--panel-line);
+}
+.term-dots{display:flex; gap:6px;}
+.term-dots span{width:9px; height:9px; border-radius:50%; display:inline-block;}
+.term-dots span:nth-child(1){background:#B4453B;}
+.term-dots span:nth-child(2){background:#C79A3E;}
+.term-dots span:nth-child(3){background:#4C8C5B;}
+.term-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11.5px;
+  color:var(--code-num);
+}
+.term-body{
+  padding:14px 0;
+  overflow-x:auto;
+}
+.code-line{
+  display:flex;
+  white-space:pre;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13.5px;
+  line-height:1.75;
+  padding:0 14px;
+}
+.code-line .ln{
+  color:var(--code-num);
+  width:26px;
+  flex:none;
+  user-select:none;
+  text-align:right;
+  margin-right:14px;
+}
+.code-line .src{color:var(--code-text);}
+.formula-box{
+  font-family:'JetBrains Mono',monospace;
+  font-size:15px;
+  background:var(--panel);
+  color:var(--code-text);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:14px;
+  border:1px solid var(--panel-line);
+}
+.panel-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media (max-width:560px){ .panel-grid{grid-template-columns:1fr;} }
+.panel-card .term-label{font-weight:600; color:var(--code-text);}
+
+.answer-area{margin-top:16px;}
+.choice-list{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+.choice-btn{
+  display:flex;
+  gap:11px;
+  align-items:flex-start;
+  text-align:left;
+  padding:12px 14px;
+  border-radius:11px;
+  border:1px solid var(--border);
+  background:var(--paper-2);
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  font-size:14px;
+  color:var(--ink);
+}
+.choice-btn .lab{
+  font-weight:700;
+  color:var(--accent-2);
+  flex:none;
+}
+.choice-btn:hover:not(:disabled){border-color:var(--accent);}
+.choice-btn:disabled{cursor:default;}
+.choice-btn.correct{background:var(--good-bg); border-color:var(--good); color:#1d3a24;}
+.choice-btn.wrong{background:var(--bad-bg); border-color:var(--bad); color:#4a1b15;}
+.choice-btn.dim{opacity:.55;}
+
+.typed-row{
+  display:flex;
+  gap:9px;
+}
+.typed-row input{
+  flex:1;
+  font-family:'JetBrains Mono',monospace;
+  font-size:15px;
+  padding:12px 14px;
+  border-radius:11px;
+  border:1px solid var(--border);
+  background:var(--paper-2);
+  color:var(--ink);
+}
+.typed-row input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.typed-row button{
+  font-family:'Sarabun',sans-serif;
+  font-weight:600;
+  font-size:14.5px;
+  padding:0 20px;
+  border-radius:11px;
+  border:none;
+  background:var(--accent);
+  color:#fff;
+  cursor:pointer;
+}
+.typed-row button:disabled{opacity:.4; cursor:not-allowed;}
+.none-hint{
+  margin-top:8px;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  background:none;
+  border:none;
+  text-decoration:underline;
+  cursor:pointer;
+  padding:0;
+  font-family:'Sarabun',sans-serif;
+}
+
+.feedback{
+  margin-top:14px;
+  padding:14px 16px;
+  border-radius:11px;
+  font-size:14.5px;
+  line-height:1.6;
+}
+.feedback.good{background:var(--good-bg); color:#1d3a24; border:1px solid var(--good);}
+.feedback.bad{background:var(--bad-bg); color:#4a1b15; border:1px solid var(--bad);}
+.feedback b{display:block; margin-bottom:3px; font-size:15px;}
+.feedback .ans{font-family:'JetBrains Mono',monospace;}
+
+.next-row{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:16px;
+}
+.btn-next{
+  font-family:'Sarabun',sans-serif;
+  font-weight:600;
+  font-size:14.5px;
+  padding:11px 22px;
+  border-radius:11px;
+  border:none;
+  background:var(--accent);
+  color:#fff;
+  cursor:pointer;
+}
+.btn-quit{
+  font-family:'Sarabun',sans-serif;
+  font-size:13.5px;
+  padding:11px 14px;
+  border-radius:11px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--ink-soft);
+  cursor:pointer;
+}
+
+/* ---- summary ---- */
+.big-score{
+  font-family:'JetBrains Mono',monospace;
+  font-size:52px;
+  font-weight:700;
+  line-height:1;
+  margin:6px 0 2px;
+}
+.big-score small{
+  font-size:18px;
+  font-weight:400;
+  color:var(--ink-soft);
+}
+.cat-breakdown{margin-top:6px;}
+.cb-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+  font-size:13.5px;
+}
+.cb-row:last-child{border-bottom:none;}
+.cb-label{flex:1; color:var(--ink);}
+.cb-bar-track{
+  flex:1;
+  height:7px;
+  background:var(--paper);
+  border-radius:4px;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.cb-bar-fill{height:100%; background:var(--accent);}
+.cb-frac{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); width:44px; text-align:right;}
+
+footer{
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:12px;
+  margin-top:34px;
+}
+.visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+button:focus-visible, .choice-btn:focus-visible, .cat-item:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ utils ============ */
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function pick(arr){return arr[randInt(0,arr.length-1)];}
+function shuffle(arr){const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+function uniq(arr){return [...new Set(arr)];}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const LABELS=['ก','ข','ค','ง'];
+
+function makeChoices(correctText, wrongCandidates, fallbackGen){
+  let wrongs = uniq(wrongCandidates).filter(w=>w!==correctText);
+  let guard=0;
+  while(wrongs.length<3 && guard<40){
+    const c=fallbackGen(wrongs.length+guard);
+    if(c!==correctText && !wrongs.includes(c)) wrongs.push(c);
+    guard++;
+  }
+  wrongs=wrongs.slice(0,3);
+  return shuffle([correctText, ...wrongs]);
+}
+
+/* ============ question generators ============ */
+
+function genNestedFilter(){
+  const N=randInt(3,5), M=randInt(3,5), K=randInt(1,10);
+  function sim(cond){
+    let out=[];
+    for(let i=1;i<=N;i++) for(let j=1;j<=M;j++) if(cond(i,j)) out.push(i*j);
+    return out;
+  }
+  const correctArr = sim((i,j)=>(i+j)%2===0 && i*j>K);
+  const correctText = correctArr.length? correctArr.join(', ') : 'ไม่มีค่าใดถูกพิมพ์';
+  const code = `i = 1\nwhile i <= ${N}:\n    j = 1\n    while j <= ${M}:\n        if (i + j) % 2 == 0 and i * j > ${K}:\n            print(i * j)\n        j = j + 1\n    i = i + 1`;
+  const variants=[
+    sim((i,j)=>(i+j)%2===0 || i*j>K),
+    sim((i,j)=>(i+j)%2===0 && i*j>=K),
+    sim((i,j)=>(i+j)%2===1 && i*j>K),
+    sim((i,j)=>(i+j)%2===0 && i*j>K+3),
+  ].map(a=> a.length? a.join(', ') : 'ไม่มีค่าใดถูกพิมพ์');
+  const fallback=(k)=>{
+    const a=correctArr.slice();
+    if(a.length===0) a.push(randInt(1,20));
+    else if(k%2===0) a.push(randInt(1,25)); else a.pop();
+    return a.length? a.join(', ') : 'ไม่มีค่าใดถูกพิมพ์';
+  };
+  const choices = makeChoices(correctText, variants, fallback);
+  return {code, correctText, choices, kind:'list',
+    question:'โปรแกรมนี้จะแสดงผลลัพธ์ (ตามลำดับที่ print) ตรงกับข้อใด'};
+}
+
+function genWhileUpdate(){
+  const X0=randInt(1,3), LIMIT=randInt(16,26), A=pick([2,3,4]);
+  const STEP=randInt(2,6), Y0=randInt(1,4), THRESH=randInt(15,40), C=randInt(3,10);
+  function sim(mul,subC){
+    let x=X0,y=Y0,iter=0;
+    while(x<=LIMIT && iter<1000){
+      if(x%A===0) y=y+x; else y=y*mul;
+      if(y>THRESH) y=y-subC;
+      x=x+STEP; iter++;
+    }
+    return y;
+  }
+  const correct=sim(2,C);
+  const code=`x = ${X0}\ny = ${Y0}\nwhile x <= ${LIMIT}:\n    if x % ${A} == 0:\n        y = y + x\n    else:\n        y = y * 2\n    if y > ${THRESH}:\n        y = y - ${C}\n    x = x + ${STEP}\nprint(y)`;
+  const wrongVals=[sim(3,C), sim(2,C+2), sim(2,Math.max(1,C-2))];
+  const fallback=(k)=>String(correct + (k%2===0? (k+2) : -(k+3)));
+  const choices=makeChoices(String(correct), wrongVals.map(String), fallback);
+  return {code, correctText:String(correct), choices, kind:'int',
+    question:'โปรแกรมนี้จะแสดงผลลัพธ์ตรงกับข้อใด'};
+}
+
+function genBoolChain(){
+  const T=Math.random()<0.5, F=Math.random()<0.5, X=randInt(1,20);
+  let letter;
+  if(T===true) letter='A';
+  else if((!T) && (X%3===0)) letter='B';
+  else if(T===false || F===false) letter='C';
+  else letter='D';
+  const code=`T = ${T?'True':'False'}\nF = ${F?'True':'False'}\nX = ${X}\nif T == True:\n    print("A")\nelif (not T) and (X % 3 == 0):\n    print("B")\nelif T == False or F == False:\n    print("C")\nelse:\n    print("D")`;
+  const choices=shuffle(['A','B','C','D']);
+  return {code, correctText:letter, choices, kind:'letter',
+    question:'โปรแกรมนี้จะแสดงผลลัพธ์ตรงกับข้อใด'};
+}
+
+function genArraySum(){
+  const arr=Array.from({length:5},()=>randInt(1,9));
+  const N=randInt(4,5), K=pick([2,3,4,5]), STEP=randInt(1,2);
+  function sim(kk){
+    let i=0,s=0,iter=0;
+    while(i<N && iter<1000){
+      let j=0;
+      while(j<=i){ s=s+(arr[j]%kk); j=j+1; }
+      i=i+STEP; iter++;
+    }
+    return s;
+  }
+  const correct=sim(K);
+  const code=`a = [${arr.join(', ')}]\ni = 0\ns = 0\nwhile i < ${N}:\n    j = 0\n    while j <= i:\n        s = s + (a[j] % ${K})\n        j = j + 1\n    i = i + ${STEP}\nprint(s)`;
+  const wrongVals=[sim(K+1), sim(Math.max(2,K-1)), correct+N];
+  const fallback=(k)=>String(correct + (k%2===0? (k+3) : -(k+4)));
+  const choices=makeChoices(String(correct), wrongVals.map(String), fallback);
+  return {code, correctText:String(correct), choices, kind:'int',
+    question:'โปรแกรมนี้จะแสดงผลลัพธ์ตรงกับข้อใด'};
+}
+
+function genMultiIf(){
+  const A=randInt(5,40), B=randInt(5,40), C= Math.random()<0.4? 1 : randInt(0,3);
+  const X1=randInt(10,35), Y1=randInt(10,35), X2=randInt(10,35), X3=randInt(10,35), X4=randInt(10,35), X5=randInt(10,35);
+  function evalAll(flip){
+    let c1=A>=X1 && B<Y1; if(flip===1) c1=!c1;
+    let c2=A<X2 && C!==1; if(flip===2) c2=!c2;
+    let c3=B>X3 && C!==1; if(flip===3) c3=!c3;
+    let c4=A>=X4 && B>=X5 && C===1; if(flip===4) c4=!c4;
+    let out=[];
+    if(c1) out.push('P'); if(c2) out.push('Q'); if(c3) out.push('R'); if(c4) out.push('S');
+    return out;
+  }
+  const correctArr=evalAll(0);
+  const correctText=correctArr.length? correctArr.join(', ') : 'ไม่มีข้อความถูกพิมพ์';
+  const code=`A = ${A}\nB = ${B}\nC = ${C}\nif A >= ${X1} and B < ${Y1}:\n    print("P")\nif A < ${X2} and C != 1:\n    print("Q")\nif B > ${X3} and C != 1:\n    print("R")\nif A >= ${X4} and B >= ${X5} and C == 1:\n    print("S")`;
+  const variants=[1,2,3,4].map(f=>{
+    const arr=evalAll(f);
+    return arr.length? arr.join(', ') : 'ไม่มีข้อความถูกพิมพ์';
+  });
+  const fallback=()=>{
+    const subset=LETTERS_PQRS.filter(()=>Math.random()<0.5);
+    return subset.length? subset.join(', ') : 'ไม่มีข้อความถูกพิมพ์';
+  };
+  const choices=makeChoices(correctText, variants, fallback);
+  return {code, correctText, choices, kind:'list',
+    question:'โปรแกรมนี้จะแสดงข้อความ (เรียงตามลำดับ) ตรงกับข้อใด'};
+}
+const LETTERS_PQRS=['P','Q','R','S'];
+
+function genArrayCount(){
+  const L=randInt(5,7);
+  const data=Array.from({length:L},()=>randInt(1,9));
+  function sim(arr){
+    const n=arr.length; let count=0,i=0;
+    while(i<n){
+      let j=n-1;
+      while(j>=i){ if(arr[j]>arr[i]) count++; j--; }
+      i++;
+    }
+    return count;
+  }
+  const correct=sim(data);
+  const code=`data = [${data.join(', ')}]\nn = len(data)\ncount = 0\ni = 0\nwhile i < n:\n    j = n - 1\n    while j >= i:\n        if data[j] > data[i]:\n            count = count + 1\n        j = j - 1\n    i = i + 1\nprint(count)`;
+  const wrongVals=[correct+1, Math.max(0,correct-1), correct+2];
+  const fallback=(k)=>String(Math.max(0, correct + (k%2===0? k+3 : -(k+2))));
+  const choices=makeChoices(String(correct), wrongVals.map(String), fallback);
+  return {code, correctText:String(correct), choices, kind:'int',
+    question:'โปรแกรมนี้จะแสดงผลลัพธ์ตรงกับข้อใด'};
+}
+
+function genSigmaMatchRaw(){
+  const start=randInt(1,4), end=randInt(start+5,start+10);
+  const coef=randInt(2,4);
+  const cstPool=[-3,-2,-1,1,2,3,4,5];
+  const cst=pick(cstPool);
+  let trueSum=0;
+  for(let n=start;n<=end;n++) trueSum+=coef*n+cst;
+  function simA(){let n=start,t=0; while(n<=end){t=t+(coef*n+cst); n=n+1;} return t;}
+  function simB(){let n=start+1,t=0; while(n<=end){t=t+(coef*n+cst); n=n+1;} return t;}
+  function simC(){let n=start,t=0; while(n<end){t=t+(coef*n+cst); n=n+1;} return t;}
+  function simD(){let n=start,t=0; while(n<=end){t=t+(coef*n); n=n+1;} return t;}
+  const sign = cst>=0? '+' : '-';
+  const absCst = Math.abs(cst);
+  const variants=[
+    {key:'A', code:`n = ${start}\ntotal = 0\nwhile n <= ${end}:\n    total = total + (${coef}*n ${sign} ${absCst})\n    n = n + 1\nprint(total)`, val:simA()},
+    {key:'B', code:`n = ${start+1}\ntotal = 0\nwhile n <= ${end}:\n    total = total + (${coef}*n ${sign} ${absCst})\n    n = n + 1\nprint(total)`, val:simB()},
+    {key:'C', code:`n = ${start}\ntotal = 0\nwhile n < ${end}:\n    total = total + (${coef}*n ${sign} ${absCst})\n    n = n + 1\nprint(total)`, val:simC()},
+    {key:'D', code:`n = ${start}\ntotal = 0\nwhile n <= ${end}:\n    total = total + (${coef}*n)\n    n = n + 1\nprint(total)`, val:simD()},
+  ];
+  const matches=variants.filter(v=>v.val===trueSum);
+  return {start,end,coef,cst,sign,absCst,trueSum,variants,matches};
+}
+function genSigmaMatch(){
+  let r=genSigmaMatchRaw(), attempts=0;
+  while(r.matches.length!==1 && attempts<40){ r=genSigmaMatchRaw(); attempts++; }
+  const shuffled=shuffle(r.variants);
+  const panels=shuffled.map((v,idx)=>({label:LABELS[idx], code:v.code, isCorrect:v.val===r.trueSum}));
+  const correctLabel=panels.find(p=>p.isCorrect).label;
+  const formulaText=`หาค่าของ  Σ (${r.coef}n ${r.sign} ${r.absCst})   เมื่อ n = ${r.start} ถึง ${r.end}\nโปรแกรมข้อใดคำนวณค่าดังกล่าวได้ถูกต้อง`;
+  return {panels, correctText:correctLabel, choices:LABELS.slice(), kind:'panel-letter',
+    formulaText, question:null};
+}
+
+/* ============ categories ============ */
+const CATS=[
+  {id:'nested-filter', label:'ลูปซ้อน + กรองเงื่อนไข', tag:'while ซ้อน 2 ชั้น', gen:genNestedFilter},
+  {id:'while-update',  label:'while ปรับค่าตัวแปรต่อเนื่อง', tag:'if-else ในลูป', gen:genWhileUpdate},
+  {id:'bool-chain',    label:'if-elif-else เชิงตรรกะ', tag:'and / or / not', gen:genBoolChain},
+  {id:'array-sum',     label:'อาเรย์ 1 มิติ + ลูปซ้อน', tag:'list index', gen:genArraySum},
+  {id:'multi-if',      label:'เงื่อนไขอิสระหลายคำสั่ง if', tag:'if แยกกัน 4 บรรทัด', gen:genMultiIf},
+  {id:'array-count',   label:'อาเรย์ + นับค่าตามเงื่อนไข', tag:'นับคู่ที่เข้าเงื่อนไข', gen:genArrayCount},
+  {id:'sigma-match',   label:'สูตรผลรวม Σ เทียบกับโค้ด', tag:'บูรณาการคณิตศาสตร์', gen:genSigmaMatch},
+];
+const CAT_BY_ID={}; CATS.forEach(c=>CAT_BY_ID[c.id]=c);
+
+function generateQuestion(catId){
+  const c=CAT_BY_ID[catId];
+  const q=c.gen();
+  q.catId=catId;
+  q.catLabel=c.label;
+  q.qid=Math.random().toString(36).slice(2)+Date.now();
+  return q;
+}
+
+/* ============ persistent tally (localStorage) ============ */
+const LS_KEY='trace_quiz_tally_v1';
+function loadTally(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return {answered:0, correct:0, bestTimed:null};
+    return JSON.parse(raw);
+  }catch(e){ return {answered:0, correct:0, bestTimed:null}; }
+}
+function saveTally(t){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(t)); }catch(e){}
+}
+
+/* ============ state ============ */
+const S={
+  screen:'setup',
+  theme: (localStorage.getItem('trace_quiz_theme')||'auto'),
+  selectedCats: new Set(CATS.map(c=>c.id)),
+  answerMode:'mc',
+  mode:'practice',
+  session:null,
+  current:null,
+  submitted:false,
+  userAnswer:'',
+  lastResult:null,
+};
+
+function applyTheme(){
+  const root=document.documentElement;
+  if(S.theme==='dark') root.setAttribute('data-theme','dark');
+  else if(S.theme==='light') root.setAttribute('data-theme','light');
+  else root.removeAttribute('data-theme');
+}
+applyTheme();
+
+/* ============ answer checking ============ */
+function normList(str){
+  const NONE_WORDS=['ไม่มีค่าใดถูกพิมพ์','ไม่มีข้อความถูกพิมพ์','ไม่มี','none','ไม่พิมพ์','no output','ว่าง'];
+  const t=str.trim().toLowerCase();
+  if(NONE_WORDS.some(w=>w.toLowerCase()===t)) return '__NONE__';
+  const parts=t.split(/[,\s]+/).filter(Boolean);
+  if(parts.length===0) return '__NONE__';
+  return parts.join(',');
+}
+function checkAnswer(q, raw){
+  const kind=q.kind;
+  if(kind==='int'){
+    const n=parseInt(raw.replace(/[^\-0-9]/g,''),10);
+    return String(n)===q.correctText;
+  }
+  if(kind==='letter'){
+    return raw.trim().toUpperCase()===q.correctText;
+  }
+  if(kind==='list'){
+    const correctIsNone = /ไม่มี/.test(q.correctText);
+    const userNorm=normList(raw);
+    if(correctIsNone) return userNorm==='__NONE__';
+    const correctNorm = q.correctText.split(/[,\s]+/).filter(Boolean).join(',').toLowerCase();
+    return userNorm===correctNorm;
+  }
+  if(kind==='panel-letter'){
+    const map={'ก':'ก','a':'ก','ข':'ข','b':'ข','ค':'ค','c':'ค','ง':'ง','d':'ง'};
+    const key=raw.trim().toLowerCase();
+    return (map[key]||raw.trim())===q.correctText;
+  }
+  return raw.trim()===q.correctText;
+}
+
+/* ============ session control ============ */
+const TIMED_TOTAL=30;
+const TIMED_MS=60*60*1000;
+
+function startSession(mode){
+  if(S.selectedCats.size===0) return;
+  S.mode=mode;
+  S.session={
+    idx:0,
+    score:0,
+    answered:0,
+    startTs:Date.now(),
+    deadlineTs: mode==='timed'? Date.now()+TIMED_MS : null,
+    perCat:{},
+    history:[],
+  };
+  CATS.forEach(c=>{ S.session.perCat[c.id]={correct:0,total:0}; });
+  nextQuestion();
+  S.screen='question';
+  render();
+}
+
+function pickCategory(){
+  const arr=[...S.selectedCats];
+  return pick(arr);
+}
+
+function nextQuestion(){
+  const cat=pickCategory();
+  S.current=generateQuestion(cat);
+  S.submitted=false;
+  S.userAnswer='';
+  S.lastResult=null;
+}
+
+let timerInterval=null;
+function tickTimer(){
+  if(!S.session || S.mode!=='timed') return;
+  const remain=S.session.deadlineTs - Date.now();
+  if(remain<=0){
+    endSession();
+    return;
+  }
+  const el=document.getElementById('timerDisplay');
+  if(el){
+    const totalSec=Math.max(0,Math.floor(remain/1000));
+    const mm=String(Math.floor(totalSec/60)).padStart(2,'0');
+    const ss=String(totalSec%60).padStart(2,'0');
+    el.textContent=mm+':'+ss;
+    el.classList.toggle('low', totalSec<=120);
+  }
+}
+
+function submitAnswer(rawAnswer){
+  if(S.submitted) return;
+  const q=S.current;
+  const correct=checkAnswer(q, rawAnswer);
+  S.submitted=true;
+  S.lastResult={correct, given:rawAnswer};
+  S.session.answered++;
+  if(correct) S.session.score++;
+  const pc=S.session.perCat[q.catId];
+  pc.total++; if(correct) pc.correct++;
+  S.session.history.push({catId:q.catId, correct});
+
+  const tally=loadTally();
+  tally.answered=(tally.answered||0)+1;
+  if(correct) tally.correct=(tally.correct||0)+1;
+  saveTally(tally);
+
+  render();
+}
+
+function goNext(){
+  if(S.mode==='timed' && S.session.answered>=TIMED_TOTAL){
+    endSession();
+    return;
+  }
+  if(S.mode==='timed' && Date.now()>=S.session.deadlineTs){
+    endSession();
+    return;
+  }
+  nextQuestion();
+  render();
+}
+
+function endSession(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  if(S.mode==='timed'){
+    const tally=loadTally();
+    const elapsedMs = Date.now()-S.session.startTs;
+    const prevBest=tally.bestTimed;
+    if(!prevBest || S.session.score>prevBest.score || (S.session.score===prevBest.score && elapsedMs<prevBest.ms)){
+      tally.bestTimed={score:S.session.score, total:S.session.answered, ms:elapsedMs};
+      saveTally(tally);
+    }
+  }
+  S.screen='summary';
+  render();
+}
+
+/* ============ rendering ============ */
+const app=document.getElementById('app');
+
+function render(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  if(S.screen==='setup') renderSetup();
+  else if(S.screen==='question') renderQuestion();
+  else if(S.screen==='summary') renderSummary();
+}
+
+function themeButtonLabel(){
+  if(S.theme==='dark') return 'โหมดมืด';
+  if(S.theme==='light') return 'โหมดสว่าง';
+  return 'ตามระบบ';
+}
+
+function renderSetup(){
+  const tally=loadTally();
+  const acc = tally.answered? Math.round((tally.correct/tally.answered)*100) : null;
+  let best='';
+  if(tally.bestTimed){
+    const s=tally.bestTimed;
+    const mm=Math.floor(s.ms/60000), ss=Math.floor((s.ms%60000)/1000);
+    best = `สถิติจับเวลาที่ดีที่สุด: ${s.score}/${s.total} ข้อ ใช้เวลา ${mm} นาที ${ss} วินาที`;
+  }
+
+  app.innerHTML = `
+    <div class="top-row">
+      <div class="brand">🐍 ห้องฝึกอ่านโค้ด<small>โจทย์ trace โค้ดไพทอนพื้นฐาน สุ่มไม่จำกัด</small></div>
+      <button class="theme-toggle" id="themeBtn">${themeButtonLabel()}</button>
+    </div>
+
+    <h1>ฝึกอ่านและทายผลลัพธ์โค้ดไพทอน</h1>
+    <p class="lede">ครอบคลุม if-else, if ซ้อนต่อเนื่อง, เงื่อนไขประกอบ (and/or/not), while loop, ลูปซ้อนไม่เกิน 2 ชั้น, อาเรย์ 1 มิติ และการบูรณาการกับผลรวมทางคณิตศาสตร์ — ไม่มีเนื้อหา for loop หรือฟังก์ชัน def</p>
+
+    <div class="card">
+      <div class="section-title">เลือกหัวข้อที่จะฝึก <span class="count">(${S.selectedCats.size}/${CATS.length})</span></div>
+      <div class="cat-grid" id="catGrid">
+        ${CATS.map(c=>`
+          <label class="cat-item ${S.selectedCats.has(c.id)?'on':''}" data-cat="${c.id}">
+            <input type="checkbox" ${S.selectedCats.has(c.id)?'checked':''} data-cat-checkbox="${c.id}">
+            <span>${esc(c.label)}<span class="tag">${esc(c.tag)}</span></span>
+          </label>
+        `).join('')}
+      </div>
+      <div style="margin-top:11px;"><button class="cat-all-btn" id="catAllBtn">${S.selectedCats.size===CATS.length? 'ยกเลิกทั้งหมด':'เลือกทั้งหมด'}</button></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">รูปแบบการตอบ</div>
+      <div class="seg">
+        <button data-answer-mode="mc" class="${S.answerMode==='mc'?'active':''}">ตัวเลือก 4 ข้อ (ก-ง)</button>
+        <button data-answer-mode="typed" class="${S.answerMode==='typed'?'active':''}">พิมพ์คำตอบเอง</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">เริ่มฝึก</div>
+      <div class="mode-buttons">
+        <button class="btn btn-primary" id="startPractice" ${S.selectedCats.size===0?'disabled':''}>
+          <span>ฝึกไม่จำกัดจำนวนข้อ<span class="sub" style="display:block;">สุ่มโจทย์ต่อเนื่องจนกว่าจะหยุดเอง</span></span>
+          <span>→</span>
+        </button>
+        <button class="btn btn-outline" id="startTimed" ${S.selectedCats.size===0?'disabled':''}>
+          <span>จับเวลา 30 ข้อ<span class="sub" style="display:block;">จำกัดเวลาไม่เกิน 60 นาที</span></span>
+          <span>→</span>
+        </button>
+      </div>
+      ${(tally.answered>0)?`
+      <div class="stat-row">
+        <span>ทำไปแล้ว: <b>${tally.answered}</b> ข้อ</span>
+        <span>ตอบถูก: <b>${tally.correct}</b> ข้อ (${acc}%)</span>
+      </div>`:''}
+      ${best? `<div class="stat-row"><span>${esc(best)}</span></div>`:''}
+    </div>
+
+    <footer>ตัวเลขในโจทย์สุ่มใหม่ทุกครั้ง — ฝึกซ้ำได้ไม่มีวันหมด</footer>
+  `;
+
+  document.getElementById('themeBtn').onclick=()=>{
+    S.theme = S.theme==='auto'? 'dark' : (S.theme==='dark'? 'light':'auto');
+    localStorage.setItem('trace_quiz_theme', S.theme);
+    applyTheme();
+    render();
+  };
+  document.querySelectorAll('.cat-item').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const id=el.getAttribute('data-cat');
+      if(S.selectedCats.has(id)) S.selectedCats.delete(id); else S.selectedCats.add(id);
+      render();
+    });
+  });
+  document.getElementById('catAllBtn').onclick=()=>{
+    if(S.selectedCats.size===CATS.length) S.selectedCats.clear();
+    else CATS.forEach(c=>S.selectedCats.add(c.id));
+    render();
+  };
+  document.querySelectorAll('[data-answer-mode]').forEach(btn=>{
+    btn.onclick=()=>{ S.answerMode=btn.getAttribute('data-answer-mode'); render(); };
+  });
+  document.getElementById('startPractice').onclick=()=>startSession('practice');
+  document.getElementById('startTimed').onclick=()=>startSession('timed');
+}
+
+function renderCodeBlock(code){
+  const lines=code.split('\n');
+  return `<div class="term-body">${lines.map((l,i)=>`<div class="code-line"><span class="ln">${i+1}</span><span class="src">${esc(l)}</span></div>`).join('')}</div>`;
+}
+
+function renderQuestion(){
+  const q=S.current;
+  const sess=S.session;
+  const isTimed=S.mode==='timed';
+  const progress = isTimed? Math.min(100, (sess.answered/TIMED_TOTAL)*100) : 0;
+
+  let codeHTML='';
+  if(q.kind==='panel-letter'){
+    codeHTML = `
+      <div class="formula-box">${esc(q.formulaText).replace('\n','<br>')}</div>
+      <div class="panel-grid">
+        ${q.panels.map(p=>`
+          <div class="term panel-card">
+            <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-label">${p.label}</div></div>
+            ${renderCodeBlock(p.code)}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    codeHTML = `
+      <div class="cat-badge">${esc(q.question)}</div>
+      <div class="term">
+        <div class="term-bar"><div class="term-dots"><span></span><span></span><span></span></div><div class="term-label mono">python3</div></div>
+        ${renderCodeBlock(q.code)}
+      </div>
+    `;
+  }
+
+  let answerHTML='';
+  if(S.answerMode==='mc'){
+    answerHTML = `
+      <div class="choice-list" id="choiceList">
+        ${q.choices.map((c,i)=>{
+          let cls='choice-btn';
+          if(S.submitted){
+            if(c===q.correctText) cls+=' correct';
+            else if(S.lastResult && S.lastResult.given===c && !S.lastResult.correct) cls+=' wrong';
+            else cls+=' dim';
+          }
+          return `<button class="${cls}" data-choice="${esc(c)}" ${S.submitted?'disabled':''}><span class="lab">${LABELS[i]}.</span><span>${esc(c)}</span></button>`;
+        }).join('')}
+      </div>
+    `;
+  } else {
+    const hint = q.kind==='panel-letter'? 'พิมพ์ ก / ข / ค / ง' : (q.kind==='list'? 'พิมพ์ค่าคั่นด้วยจุลภาค เช่น 4, 8, 12' : 'พิมพ์คำตอบ');
+    answerHTML = `
+      <div class="typed-row">
+        <input type="text" id="typedInput" placeholder="${esc(hint)}" ${S.submitted?'disabled':''} value="${S.submitted? esc(S.lastResult.given): ''}" autocomplete="off">
+        <button id="submitTyped" ${S.submitted?'disabled':''}>ตรวจคำตอบ</button>
+      </div>
+      ${(q.kind==='list' && !S.submitted)? `<button class="none-hint" id="noneHint">ไม่มีค่าใด/ข้อความใดถูกพิมพ์เลย</button>`:''}
+    `;
+  }
+
+  let feedbackHTML='';
+  if(S.submitted){
+    const ok=S.lastResult.correct;
+    feedbackHTML = `
+      <div class="feedback ${ok?'good':'bad'}">
+        <b>${ok? 'ถูกต้อง!' : 'ยังไม่ถูก'}</b>
+        <span>คำตอบที่ถูกต้องคือ <span class="ans">${esc(q.correctText)}</span></span>
+      </div>
+      <div class="next-row">
+        <button class="btn-quit" id="quitBtn">${isTimed? 'จบก่อนกำหนด':'จบเซสชัน'}</button>
+        <button class="btn-next" id="nextBtn">ข้อถัดไป →</button>
+      </div>
+    `;
+  } else {
+    feedbackHTML = `
+      <div class="next-row">
+        <button class="btn-quit" id="quitBtn">${isTimed? 'จบก่อนกำหนด':'จบเซสชัน'}</button>
+      </div>
+    `;
+  }
+
+  app.innerHTML = `
+    <div class="q-status">
+      <span class="pill">${esc(q.catLabel)}</span>
+      ${isTimed
+        ? `<span class="pill">ข้อ ${sess.answered+1}/${TIMED_TOTAL}</span><span class="timer" id="timerDisplay">60:00</span>`
+        : `<span class="pill">ข้อที่ ${sess.answered+1} · ตอบถูก ${sess.score} ข้อ</span>`
+      }
+    </div>
+    ${isTimed? `<div class="progress-track"><div class="progress-fill" style="width:${progress}%"></div></div>` : ''}
+    ${codeHTML}
+    <div class="answer-area">
+      ${answerHTML}
+      ${feedbackHTML}
+    </div>
+  `;
+
+  if(isTimed){
+    tickTimer();
+    timerInterval=setInterval(tickTimer, 1000);
+  }
+
+  if(S.answerMode==='mc'){
+    document.querySelectorAll('[data-choice]').forEach(btn=>{
+      btn.onclick=()=>submitAnswer(btn.getAttribute('data-choice'));
+    });
+  } else {
+    const input=document.getElementById('typedInput');
+    const submitBtn=document.getElementById('submitTyped');
+    if(input && !S.submitted){
+      input.focus();
+      input.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ submitAnswer(input.value); } });
+    }
+    if(submitBtn) submitBtn.onclick=()=>submitAnswer(input.value);
+    const noneHint=document.getElementById('noneHint');
+    if(noneHint) noneHint.onclick=()=>{ input.value='ไม่มี'; input.focus(); };
+  }
+
+  const nextBtn=document.getElementById('nextBtn');
+  if(nextBtn) nextBtn.onclick=goNext;
+  const quitBtn=document.getElementById('quitBtn');
+  if(quitBtn) quitBtn.onclick=endSession;
+}
+
+function renderSummary(){
+  const sess=S.session;
+  const isTimed=S.mode==='timed';
+  const elapsedMs=Date.now()-sess.startTs;
+  const mm=Math.floor(elapsedMs/60000), ss=Math.floor((elapsedMs%60000)/1000);
+  const pct = sess.answered? Math.round((sess.score/sess.answered)*100) : 0;
+
+  const catRows = CATS.filter(c=>sess.perCat[c.id].total>0).map(c=>{
+    const p=sess.perCat[c.id];
+    const fillPct = p.total? Math.round((p.correct/p.total)*100):0;
+    return `<div class="cb-row">
+      <div class="cb-label">${esc(c.label)}</div>
+      <div class="cb-bar-track"><div class="cb-bar-fill" style="width:${fillPct}%"></div></div>
+      <div class="cb-frac">${p.correct}/${p.total}</div>
+    </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="top-row">
+      <div class="brand">🐍 ห้องฝึกอ่านโค้ด</div>
+    </div>
+    <div class="card">
+      <div class="section-title">${isTimed? 'สรุปผลเซสชันจับเวลา':'สรุปผลการฝึก'}</div>
+      <div class="big-score">${sess.score}<small> / ${sess.answered} ข้อ</small></div>
+      <div class="stat-row">
+        <span>ความแม่นยำ: <b>${pct}%</b></span>
+        <span>เวลาที่ใช้: <b>${mm} นาที ${ss} วินาที</b></span>
+        ${isTimed? `<span>เป้าหมาย: <b>${TIMED_TOTAL} ข้อ ภายใน 60 นาที</b></span>`:''}
+      </div>
+    </div>
+    ${catRows? `<div class="card"><div class="section-title">แยกตามหัวข้อ</div><div class="cat-breakdown">${catRows}</div></div>`:''}
+    <div class="mode-buttons">
+      <button class="btn btn-primary" id="againBtn"><span>ฝึกต่ออีกเซสชัน</span><span>→</span></button>
+      <button class="btn btn-outline" id="homeBtn"><span>กลับไปหน้าตั้งค่า</span><span>→</span></button>
+    </div>
+  `;
+  document.getElementById('againBtn').onclick=()=>startSession(S.mode);
+  document.getElementById('homeBtn').onclick=()=>{ S.screen='setup'; render(); };
+}
+
+render();
+})();
+</script>
+</body>
+</html>
